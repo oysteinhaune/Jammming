@@ -1,0 +1,17 @@
+/*  src/Title.css  */
+.Header {
+    background-color: #010c3f;
+    color: #fff;
+  }
+
+ a {
+      color: white;
+  }
+
+  #login {
+ /*    display: none; */
+  }
+
+  #loggedin {
+    display: none;
+  }
