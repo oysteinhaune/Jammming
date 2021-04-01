@@ -3,6 +3,8 @@ import './App.css';
 import { SearchResults } from "../SearchResults/SearchResults";
 import { SearchBar } from "../SearchBar/SearchBar";
 import { Playlist } from "../Playlist/Playlist";
+import  Header  from "../Header/Header";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 class App extends React.Component {
@@ -65,7 +67,7 @@ class App extends React.Component {
     render() {
         return (
             <div>
-                <h1>Ja<span className="highlight">mmm</span>ing</h1>
+                <Header />
                 <div className="App">
                     <h1>Users</h1>
                     {this.state.users.map(user =>
