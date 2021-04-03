@@ -1,10 +1,11 @@
 var express = require('express');
 var router = express.Router();
 var querystring = require('querystring');
+require('dotenv').config()
 
-var client_id = process.env.CLIENT_ID; // Your client id
+var client_id = '52a740bd3c3d455eb905f7383d44ff73'; // Your client id
 var client_secret = process.env.CLIENT_SECRET; // Your secret
-var redirect_uri = process.env.REDIRECT_URI; // Your redirect uri
+var redirect_uri = 'http://localhost:3001/callback'; // Your redirect uri
 
 /**
  * Generates a random string containing numbers and letters
@@ -26,14 +27,10 @@ var stateKey = 'spotify_auth_state';
 router.get('/', function (req, res, next) {
 
   var state = generateRandomString(16);
-  res.cookie(stateKey, state);
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "X-Requested-With");
-  console.log("Getting Login");
 
   // your application requests authorization
-  var scope = 'user-read-private user-read-email';
-  /*res.redirect('https://www.vg.no/'); */
+  var scope = 'user-read-private user-read-email user-read-playback-state';
+
      res.redirect('https://accounts.spotify.com/authorize?' +
       querystring.stringify({
         response_type: 'code',

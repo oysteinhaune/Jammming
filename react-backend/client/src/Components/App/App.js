@@ -5,8 +5,8 @@ import { SearchBar } from "../SearchBar/SearchBar";
 import { Playlist } from "../Playlist/Playlist";
 import Header from "../Header/Header";
 import Users from "../Users/Users";
-import Login from "../Login/Login";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import SpotifyWebApi from 'spotify-web-api-js';
 import {
     BrowserRouter as Router,
     Switch,
@@ -14,14 +14,22 @@ import {
     Link
   } from "react-router-dom";
 
+const spotifyApi = new SpotifyWebApi();
 
 class App extends React.Component {
 
-  
-
     constructor(props) {
         super(props)
+        const params = this.getHashParams();
+        const token = params.access_token;
+        console.log(token);
+        if (token) {
+          spotifyApi.setAccessToken(token);
+        }
+        
         this.state = {
+            loggedIn: token ? true : false,
+            nowPlaying: { name: 'Not Checked', albumArt: '' },
             searchResults: [{ name: "Enter Sandman", album: "BlackAlbum", artist: "Metallica", id: 1, uri: "gjkdd" },
             { name: "Hello", album: "Kill Me", artist: "Korn", id: 2, uri: "gjkd33d" },
             { name: "Hammer", album: "Grudge", artist: "Tool", id: 3, uri: "gjkdd44" }],
@@ -31,12 +39,38 @@ class App extends React.Component {
             { name: "Hammerers", album: "Grudge", artist: "Tooler", id: 6, uri: "g32jkdd" }]
         }
 
+        console.log(this.state.loggedIn);
+
         this.addTrack = this.addTrack.bind(this)
         this.removeTrack = this.removeTrack.bind(this)
         this.updatePlaylistName = this.updatePlaylistName.bind(this)
         this.savePlaylist = this.savePlaylist.bind(this)
         this.search = this.search.bind(this)
     }
+
+    getNowPlaying(){
+        spotifyApi.getMyCurrentPlaybackState()
+          .then((response) => {
+            this.setState({
+              nowPlaying: { 
+                  name: response.item.name, 
+                  albumArt: response.item.album.images[0].url
+                }
+            });
+          })
+      }
+
+    getHashParams() {
+        var hashParams = {};
+        var e, r = /([^&;=]+)=?([^&;]*)/g,
+            q = window.location.hash.substring(1);
+        e = r.exec(q)
+        while (e) {
+           hashParams[e[1]] = decodeURIComponent(e[2]);
+           e = r.exec(q);
+        }
+        return hashParams;
+      }
 
     addTrack(track) {
         let newPlaylist = this.state.playlistTracks
@@ -84,6 +118,16 @@ class App extends React.Component {
                         <Switch>
                             <Route exact path="/">
                                 <div className="App">
+                                <div>
+                                    Now Playing: { this.state.nowPlaying.name }
+                                </div>
+                                <div>
+                                    <img src={this.state.nowPlaying.albumArt} style={{ height: 150 }}/>
+                                </div>
+                                { this.state.loggedIn && <button onClick={() => this.getNowPlaying()}>
+                                    Check Now Playing
+                                    </button>
+                                }
                                     <SearchBar onSearch={this.search} />
                                     <div className="App-playlist">
                                         <SearchResults searchResult={this.state.searchResults} onAdd={this.addTrack} isPlus={true} />
@@ -95,13 +139,10 @@ class App extends React.Component {
                             <Route path="/users">
                               <Users />
                             </Route>
-                            <Route path="/login">
-                              <Login />
-                            </Route>
                         </Switch>
                     </div>
                 </Router>
-
+                
             </div>
         )
     }
