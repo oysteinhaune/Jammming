@@ -3,22 +3,25 @@ import './App.css';
 import { SearchResults } from "../SearchResults/SearchResults";
 import { SearchBar } from "../SearchBar/SearchBar";
 import { Playlist } from "../Playlist/Playlist";
-import  Header  from "../Header/Header";
+import Header from "../Header/Header";
+import Users from "../Users/Users";
+import Login from "../Login/Login";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import {
+    BrowserRouter as Router,
+    Switch,
+    Route,
+    Link
+  } from "react-router-dom";
 
 
 class App extends React.Component {
 
-    componentDidMount() {
-        fetch('/users')
-            .then(res => res.json())
-            .then(users => this.setState({ users }));
-    }
+  
 
     constructor(props) {
         super(props)
         this.state = {
-            users: [] ,
             searchResults: [{ name: "Enter Sandman", album: "BlackAlbum", artist: "Metallica", id: 1, uri: "gjkdd" },
             { name: "Hello", album: "Kill Me", artist: "Korn", id: 2, uri: "gjkd33d" },
             { name: "Hammer", album: "Grudge", artist: "Tool", id: 3, uri: "gjkdd44" }],
@@ -68,20 +71,37 @@ class App extends React.Component {
         return (
             <div>
                 <Header />
-                <div className="App">
-                    <h1>Users</h1>
-                    {this.state.users.map(user =>
-                        <div key={user.id}>{user.username}</div>
-                    )}
-                </div>
-                <div className="App">
-                    <SearchBar onSearch={this.search} />
-                    <div className="App-playlist">
-                        <SearchResults searchResult={this.state.searchResults} onAdd={this.addTrack} isPlus={true} />
-                        <Playlist playlistName={this.state.playlistName} playlistTracks={this.state.playlistTracks}
-                            onRemove={this.removeTrack} onNameChange={this.updatePlaylistName} onSave={this.savePlaylist} />
+                <Router>
+                    <div>
+
+                        {/*
+          A <Switch> looks through all its children <Route>
+          elements and renders the first one whose path
+          matches the current URL. Use a <Switch> any time
+          you have multiple routes, but you want only one
+          of them to render at a time
+        */}
+                        <Switch>
+                            <Route exact path="/">
+                                <div className="App">
+                                    <SearchBar onSearch={this.search} />
+                                    <div className="App-playlist">
+                                        <SearchResults searchResult={this.state.searchResults} onAdd={this.addTrack} isPlus={true} />
+                                        <Playlist playlistName={this.state.playlistName} playlistTracks={this.state.playlistTracks}
+                                            onRemove={this.removeTrack} onNameChange={this.updatePlaylistName} onSave={this.savePlaylist} />
+                                    </div>
+                                </div>
+                            </Route>
+                            <Route path="/users">
+                              <Users />
+                            </Route>
+                            <Route path="/login">
+                              <Login />
+                            </Route>
+                        </Switch>
                     </div>
-                </div>
+                </Router>
+
             </div>
         )
     }
