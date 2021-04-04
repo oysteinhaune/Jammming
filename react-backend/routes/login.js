@@ -1,11 +1,9 @@
 var express = require('express');
 var router = express.Router();
 var querystring = require('querystring');
-require('dotenv').config()
 
-var client_id = '52a740bd3c3d455eb905f7383d44ff73'; // Your client id
-var client_secret = process.env.CLIENT_SECRET; // Your secret
-var redirect_uri = 'http://localhost:3001/callback'; // Your redirect uri
+var client_id = process.env.CLIENT_ID;
+var redirect_uri = process.env.REDIRECT_URI;
 
 /**
  * Generates a random string containing numbers and letters
@@ -22,11 +20,10 @@ var generateRandomString = function (length) {
   return text;
 };
 
-var stateKey = 'spotify_auth_state';
-
-router.get('/', function (req, res, next) {
-
+router.get('/', function (req, res) {
+  var stateKey = 'spotify_auth_state';
   var state = generateRandomString(16);
+  res.cookie(stateKey, state);
 
   // your application requests authorization
   var scope = 'user-read-private user-read-email user-read-playback-state';

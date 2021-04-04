@@ -118,16 +118,21 @@ class App extends React.Component {
                         <Switch>
                             <Route exact path="/">
                                 <div className="App">
-                                <div>
-                                    Now Playing: { this.state.nowPlaying.name }
+
+                                    <div>
+                                        {this.state.loggedIn && <p>Now Playing:</p> }
+                                     {this.state.loggedIn && this.state.nowPlaying.name }
                                 </div>
                                 <div>
-                                    <img src={this.state.nowPlaying.albumArt} style={{ height: 150 }}/>
+                                    <img src={this.state.loggedIn && this.state.nowPlaying.albumArt} style={{ height: 150 }}/>
                                 </div>
+ 
                                 { this.state.loggedIn && <button onClick={() => this.getNowPlaying()}>
+                                    
                                     Check Now Playing
                                     </button>
                                 }
+                                
                                     <SearchBar onSearch={this.search} />
                                     <div className="App-playlist">
                                         <SearchResults searchResult={this.state.searchResults} onAdd={this.addTrack} isPlus={true} />
