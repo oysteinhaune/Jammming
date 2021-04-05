@@ -7,12 +7,16 @@ import Header from "../Header/Header";
 import Users from "../Users/Users";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import SpotifyWebApi from 'spotify-web-api-js';
+import ReactNotification from 'react-notifications-component'
+import 'react-notifications-component/dist/theme.css'
+import { store } from 'react-notifications-component';
+
+
 import {
     BrowserRouter as Router,
     Switch,
     Route,
-    Link
-  } from "react-router-dom";
+} from "react-router-dom";
 
 const spotifyApi = new SpotifyWebApi();
 
@@ -22,11 +26,11 @@ class App extends React.Component {
         super(props)
         const params = this.getHashParams();
         const token = params.access_token;
-        console.log(token);
+
         if (token) {
-          spotifyApi.setAccessToken(token);
+            spotifyApi.setAccessToken(token);
         }
-        
+
         this.state = {
             loggedIn: token ? true : false,
             nowPlaying: { name: 'Not Checked', albumArt: '' },
@@ -39,7 +43,6 @@ class App extends React.Component {
             { name: "Hammerers", album: "Grudge", artist: "Tooler", id: 6, uri: "g32jkdd" }]
         }
 
-        console.log(this.state.loggedIn);
 
         this.addTrack = this.addTrack.bind(this)
         this.removeTrack = this.removeTrack.bind(this)
@@ -48,17 +51,33 @@ class App extends React.Component {
         this.search = this.search.bind(this)
     }
 
-    getNowPlaying(){
+    getNowPlaying() {
         spotifyApi.getMyCurrentPlaybackState()
-          .then((response) => {
-            this.setState({
-              nowPlaying: { 
-                  name: response.item.name, 
-                  albumArt: response.item.album.images[0].url
+            .then((response) => {
+                if (response.item) {
+                    this.setState({
+                        nowPlaying: {
+                            name: response.item.name,
+                            albumArt: response.item.album.images[0].url
+                        }
+                    });
+                } else {
+                    store.addNotification({
+                        title: "No song playing",
+                        message: "Please check your Spotify player.",
+                        type: "danger",
+                        insert: "top",
+                        container: "bottom-right",
+                        animationIn: ["animate__animated", "animate__fadeIn"],
+                        animationOut: ["animate__animated", "animate__fadeOut"],
+                        dismiss: {
+                          duration: 5000,
+                          onScreen: true
+                        }
+                      });
                 }
-            });
-          })
-      }
+            })
+    }
 
     getHashParams() {
         var hashParams = {};
@@ -66,11 +85,11 @@ class App extends React.Component {
             q = window.location.hash.substring(1);
         e = r.exec(q)
         while (e) {
-           hashParams[e[1]] = decodeURIComponent(e[2]);
-           e = r.exec(q);
+            hashParams[e[1]] = decodeURIComponent(e[2]);
+            e = r.exec(q);
         }
         return hashParams;
-      }
+    }
 
     addTrack(track) {
         let newPlaylist = this.state.playlistTracks
@@ -104,6 +123,7 @@ class App extends React.Component {
     render() {
         return (
             <div>
+                <ReactNotification />
                 <Header />
                 <Router>
                     <div>
@@ -118,16 +138,20 @@ class App extends React.Component {
                         <Switch>
                             <Route exact path="/">
                                 <div className="App">
-                                <div>
-                                    Now Playing: { this.state.nowPlaying.name }
-                                </div>
-                                <div>
-                                    <img src={this.state.nowPlaying.albumArt} style={{ height: 150 }}/>
-                                </div>
-                                { this.state.loggedIn && <button onClick={() => this.getNowPlaying()}>
-                                    Check Now Playing
+                                    <div>
+                                        {this.state.loggedIn && <p>Now Playing:</p>}
+                                        {this.state.loggedIn && this.state.nowPlaying.name}
+                                    </div>
+                                    <div>
+                                        <img alt={this.state.nowPlaying.name} src={this.state.loggedIn ? this.state.nowPlaying.albumArt : undefined} style={{ height: 150 }} />
+                                    </div>
+
+                                    {this.state.loggedIn && <button onClick={() => this.getNowPlaying()}>
+
+                                        Check Now Playing
                                     </button>
-                                }
+                                    }
+
                                     <SearchBar onSearch={this.search} />
                                     <div className="App-playlist">
                                         <SearchResults searchResult={this.state.searchResults} onAdd={this.addTrack} isPlus={true} />
@@ -137,7 +161,7 @@ class App extends React.Component {
                                 </div>
                             </Route>
                             <Route path="/users">
-                              <Users />
+                                <Users />
                             </Route>
                         </Switch>
                     </div>
