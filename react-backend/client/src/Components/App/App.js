@@ -64,7 +64,7 @@ class App extends React.Component {
                 } else {
                     store.addNotification({
                         title: "No song playing",
-                        message: "Please check your spotify player.",
+                        message: "Please check your Spotify player.",
                         type: "danger",
                         insert: "top",
                         container: "bottom-right",
