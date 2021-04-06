@@ -34,13 +34,10 @@ class App extends React.Component {
         this.state = {
             loggedIn: token ? true : false,
             nowPlaying: { name: 'Not Checked', albumArt: '' },
-            searchResults: [{ name: "Enter Sandman", album: "BlackAlbum", artist: "Metallica", id: 1, uri: "gjkdd" },
-            { name: "Hello", album: "Kill Me", artist: "Korn", id: 2, uri: "gjkd33d" },
-            { name: "Hammer", album: "Grudge", artist: "Tool", id: 3, uri: "gjkdd44" }],
+            searchResultsObjects: [],
+            searchResults: [{}],
             playlistName: "New Playlist",
-            playlistTracks: [{ name: "One", album: "BlackAlbum", artist: "Metallica", id: 4, uri: "gjkd55d" },
-            { name: "Hello", album: "Kill Me", artist: "Pantera", id: 5, uri: "gj66kdd" },
-            { name: "Hammerers", album: "Grudge", artist: "Tooler", id: 6, uri: "g32jkdd" }]
+            playlistTracks: [{}]
         }
 
 
@@ -49,6 +46,9 @@ class App extends React.Component {
         this.updatePlaylistName = this.updatePlaylistName.bind(this)
         this.savePlaylist = this.savePlaylist.bind(this)
         this.search = this.search.bind(this)
+        this.updatesearchResultsObjects = this.updatesearchResultsObjects.bind(this)
+        this.updateSearchResults = this.updateSearchResults.bind(this)
+        this.clearSearchResults = this.clearSearchResults.bind(this)
     }
 
     getNowPlaying() {
@@ -62,6 +62,7 @@ class App extends React.Component {
                         }
                     });
                 } else {
+                    // Display notification if no song is playing.
                     store.addNotification({
                         title: "No song playing",
                         message: "Please check your Spotify player.",
@@ -91,14 +92,24 @@ class App extends React.Component {
         return hashParams;
     }
 
-    addTrack(track) {
-        let newPlaylist = this.state.playlistTracks
-        if (this.state.playlistTracks.find(savedTrack => savedTrack.id === track.id)) {
-            return
-        } else {
-            newPlaylist.push(track)
-            this.setState({ playlistTracks: newPlaylist });
-        }
+    clearSearchResults() {
+        this.setState({ searchResults: {
+            name: "",
+            album: "",
+            artist: "",
+            id: "",
+            uri: ""  
+    }})
+    }
+
+    addTrack(trackObject) { 
+        this.setState({ searchResults: {
+                name: trackObject.name,
+                album: trackObject.album.name,
+                artist: trackObject.artists.[0].name,
+                id: trackObject.id,
+                uri: trackObject.uri  
+        }})
     }
 
     removeTrack(track) {
@@ -116,8 +127,27 @@ class App extends React.Component {
         this.state.playlistTracks.forEach(trackItem => trackURIs.push(trackItem.uri));
     }
 
-    search(term) {
+    updatesearchResultsObjects(trackObject) {
+        this.setState({searchResultsObjects: trackObject.tracks.items })
+    }
 
+    updateSearchResults() {
+        this.clearSearchResults()
+        this.state.searchResultsObjects.forEach(track => {
+            this.addTrack(track);
+        });
+    }
+
+    search(term) {
+        // search tracks whose name, album or artist contains 'term'
+        if(term) {
+        spotifyApi.searchTracks(term).then((data) => {
+                this.updatesearchResultsObjects(data);
+                this.updateSearchResults();
+            }
+        )} else {
+            return
+        }
     }
 
     render() {
@@ -154,7 +184,7 @@ class App extends React.Component {
 
                                     <SearchBar onSearch={this.search} />
                                     <div className="App-playlist">
-                                        <SearchResults searchResult={this.state.searchResults} onAdd={this.addTrack} isPlus={true} />
+                                        <SearchResults searchResult={this.state.searchResults} onAdd={this.addTrack} isPlus={true} onRemove={this.removeTrack}/>
                                         <Playlist playlistName={this.state.playlistName} playlistTracks={this.state.playlistTracks}
                                             onRemove={this.removeTrack} onNameChange={this.updatePlaylistName} onSave={this.savePlaylist} />
                                     </div>
