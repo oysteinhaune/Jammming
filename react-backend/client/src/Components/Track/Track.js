@@ -1,6 +1,7 @@
 import React from 'react'
 import './Track.css'
 
+
 class Track extends React.Component {
 
     constructor(props) {
@@ -31,7 +32,7 @@ class Track extends React.Component {
             <div className="Track">
                 <div className="Track-information">
                     <h3>{this.props.track.name}</h3>
-                    <p>Artist: {this.props.track.artist} | Album: {this.props.track.album}</p>
+                    <p>{this.props.track.artist} | {this.props.track.album}</p>
                 </div>
                 {this.renderAction(this.props.isPlus)}
             </div>

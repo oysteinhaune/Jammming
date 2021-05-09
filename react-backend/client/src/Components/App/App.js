@@ -19,9 +19,9 @@ import {
 } from "react-router-dom";
 
 var spotifyApi = new SpotifyWebApi({
-    clientId: 'fcecfc72172e4cd267473117a17cbd4d',
-    clientSecret: 'a6338157c9bb5ac9c71924cb2940e1a7',
-    redirectUri: 'http://www.example.com/callback'
+    clientId: process.env.CLIENT_ID,
+    clientSecret: process.env.CLIENT_SECRET,
+    redirectUri: process.env.REDIRECT_URI
   });
 
 class App extends React.Component {
