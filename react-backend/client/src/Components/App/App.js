@@ -43,7 +43,9 @@ class App extends React.Component {
             searchResultsObjects: [],
             searchResults: [{}],
             playlistName: "New Playlist",
+            playlistId: '',
             playlistTracks: [],
+            trackUris: '',
             userName: '',
             userId: '',
             token: token
@@ -61,7 +63,7 @@ class App extends React.Component {
         this.addSearchResultTrack = this.addSearchResultTrack.bind(this)
         this.getUserInfo = this.getUserInfo.bind(this)
         this.createPlaylist = this.createPlaylist.bind(this)       
-        this.getUserPlaylists = this.getUserPlaylists.bind(this)
+        this.updatePlayListTracksUris = this.updatePlayListTracksUris.bind(this)
     }
 
     getNowPlaying() {
@@ -121,6 +123,7 @@ class App extends React.Component {
             this.setState({ playlistTracks: newPlaylist });
 
             this.removeSearchResultTrack(trackObject)
+            this.updatePlayListTracksUris()
         }else{
             return null
        }      
@@ -151,35 +154,64 @@ class App extends React.Component {
     }
 
     savePlaylist() {
-        this.getUserPlaylists()
-/*         this.createPlaylist
-
-        let trackURIs = []
-        this.state.playlistTracks.forEach(trackItem => trackURIs.push(trackItem.uri)); */
+        if(this.state.playlistName && this.state.playlistTracks.length > 0) {
+            this.createPlaylist()
+            this.setState({playlistTracks: []})
+        } else {
+            store.addNotification({
+                title: "No tracks added or no name",
+                message: "Please add tracks, and a playlist name.",
+                type: "danger",
+                insert: "top",
+                container: "bottom-right",
+                animationIn: ["animate__animated", "animate__fadeIn"],
+                animationOut: ["animate__animated", "animate__fadeOut"],
+                dismiss: {
+                  duration: 5000,
+                  onScreen: true
+                }
+              });
+        }
     }
 
-    createPlaylist() {
-        spotifyApi.createPlaylist(this.state.playlistName, { 'description': 'My description', 'public': true })
-            .then(function(data) {
-                console.log('Created playlist!');
-            }, function(err) {
-                console.log('Something went wrong!', err);
-            });
+    getPlayListId() {
+        //Makes a string of the track uris.
+        let uriString = ''
+        this.state.playlistTracks.forEach(track => {
+            uriString += `,${track.URI}`
+        });
+
+        uriString = uriString.substring(1)    
+        this.setState({trackUris: uriString})
     }
 
     addTracksToPlaylist() {
-        spotifyApi.addTracksToPlaylist('5ieJqeLJjjI8iJWaxeBLuK', ["spotify:track:4iV5W9uYEdYUVa79Axb7Rh", "spotify:track:1301WleyT98MSxVHPZCA6M"])
-            .then(function(data) {
-                console.log('Added tracks to playlist!');
-            }, function(err) {
-                console.log('Something went wrong!', err);
-            });
+        const params = {
+            uris: this.state.trackUris,
+        };
+        const options = {
+            method: 'POST',
+            body: JSON.stringify( params )  
+        };
+        fetch(`https://api.spotify.com/v1/playlists/${this.state.playlistId}/tracks/?access_token=${this.state.token}`, options )
+            .then( response => response.json() )
+            .then( response => {
+        } );
+    }
+
+    updatePlayListTracksUris() {
+        //Makes a string of the track uris.
+        let uriArray = []
+        this.state.playlistTracks.forEach(track => {
+            uriArray.push(track.URI)
+        });
+
+        this.setState({trackUris: uriArray})
     }
 
     getUserInfo() {
         // Get the authenticated user
         spotifyApi.getMe().then((data) => {
-            console.log(data)
             let usersId = ['oysteinha'];
             this.setState({userName: data.display_name, userId: usersId})
         }, function(err) {
@@ -187,9 +219,20 @@ class App extends React.Component {
         });
     }
 
-    getUserPlaylists() {
-        // Get a user's playlists
-        fetch(`https://api.spotify.com/v1/${this.state.userId}/playlists/?access_token=${this.state.token}`).then(res => res.json()).then(data => console.log(data));
+    createPlaylist() {        
+        const params = {
+            name: this.state.playlistName 
+        };
+        const options = {
+            method: 'POST',
+            body: JSON.stringify( params )  
+        };
+        fetch(`https://api.spotify.com/v1/users/${this.state.userId}/playlists/?access_token=${this.state.token}`, options )
+            .then( response => response.json() )
+            .then( response => {
+                this.setState({playlistId: response.id})
+                this.addTracksToPlaylist()
+            } );
     }
 
     updatesearchResultsObjects(trackObject) {
