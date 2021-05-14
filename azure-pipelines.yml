@@ -15,7 +15,7 @@ variables:
   webAppName: 'Jammming'
 
   # Environment name
-  environmentName: ''
+  environmentName: 'jammming'
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
