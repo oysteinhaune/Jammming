@@ -157,6 +157,19 @@ class App extends React.Component {
         if(this.state.playlistName && this.state.playlistTracks.length > 0) {
             this.createPlaylist()
             this.setState({playlistTracks: []})
+            store.addNotification({
+                title: "New Playlist added to your Spotify account!",
+                message: "Enjoy your new playlist.",
+                type: "success",
+                insert: "top",
+                container: "bottom-right",
+                animationIn: ["animate__animated", "animate__fadeIn"],
+                animationOut: ["animate__animated", "animate__fadeOut"],
+                dismiss: {
+                  duration: 7000,
+                  onScreen: true
+                }
+              });
         } else {
             store.addNotification({
                 title: "No tracks added or no name",
@@ -167,7 +180,7 @@ class App extends React.Component {
                 animationIn: ["animate__animated", "animate__fadeIn"],
                 animationOut: ["animate__animated", "animate__fadeOut"],
                 dismiss: {
-                  duration: 5000,
+                  duration: 6000,
                   onScreen: true
                 }
               });
