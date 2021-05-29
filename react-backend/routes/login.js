@@ -1,9 +1,22 @@
 var express = require('express');
+var cors = require('cors')
 var router = express.Router();
 var querystring = require('querystring');
 
 var client_id = process.env.CLIENT_ID;
 var redirect_uri = process.env.REDIRECT_URI;
+
+
+router.use(cors())
+
+var corsOptions = {
+
+  origin: 'https://accounts.spotify.com/',
+
+  optionsSuccessStatus: 200
+
+};
+
 
 /**
  * Generates a random string containing numbers and letters
@@ -20,14 +33,13 @@ var generateRandomString = function (length) {
   return text;
 };
 
-router.get('/', function (req, res) {
+router.get('/', function (req, res, next) {
   var stateKey = 'spotify_auth_state';
   var state = generateRandomString(16);
   res.cookie(stateKey, state);
 
   // your application requests authorization
   var scope = 'user-read-private user-read-email user-read-playback-state, playlist-modify-public';
-
      res.redirect('https://accounts.spotify.com/authorize?' +
       querystring.stringify({
         response_type: 'code',
@@ -35,7 +47,7 @@ router.get('/', function (req, res) {
         scope: scope,
         redirect_uri: redirect_uri,
         state: state
-      })); 
+      }));
 });
 
 module.exports = router;

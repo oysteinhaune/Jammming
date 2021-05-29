@@ -1,0 +1,8 @@
+{
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/4a2a1d7c-9d79-413b-b2de-c269a7cc6949/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/sites/Jammming",
+    "appService.deploySubpath": "."
+}
