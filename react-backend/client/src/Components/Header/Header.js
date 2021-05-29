@@ -11,7 +11,7 @@ function Header() {
                         <a href="/users">Users</a>
                     </li>
                     <li className="nav-item btn" id="login">
-                        <a href="https://jammming.azurewebsites.net/login">Log in to Spotify</a>
+                        <a href="http://localhost:5000/login">Log in to Spotify</a>
                     </li>
                     <li className="nav-item " id="loggedin">
                         Logged in

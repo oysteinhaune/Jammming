@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const querystring = require('querystring');
 const request = require('request');
+var path = require('path');
 
 router.get('/', function(req, res) {
 
@@ -44,7 +45,7 @@ router.get('/', function(req, res) {
               refresh_token = body.refresh_token;
 
           // we can also pass the token to the browser to make requests from there
-          res.redirect('http://localhost:3000/#' +
+          res.redirect(path.join(__dirname, 'client/build/#') +
             querystring.stringify({
               access_token: access_token,
               refresh_token: refresh_token
